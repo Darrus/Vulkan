@@ -1,6 +1,9 @@
 #include "VulkanApplication.hpp"
 
+#include <iostream>
+#include <string>
 #include <stdexcept>
+#include <unordered_set>
 
 void VulkanApplication::run()
 {
@@ -55,10 +58,14 @@ void VulkanApplication::createInstance()
 
 	// Vulkan is platform agnostic API
 	// As such we need a extension to interface with the window system
-	// GLFW is able to provide what extensions are required 
+	// GLFW is able to provide what extensions are required
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
+	if (!checkGLFWExtensionSupport(glfwExtensions, glfwExtensionCount)) {
+		throw std::runtime_error("Not all GLFW extensions are supported by Vulkan!");
+	}
+	
 	// Get the extensions required and pass to createInfo
 	createInfo.enabledExtensionCount = glfwExtensionCount;
 	createInfo.ppEnabledExtensionNames = glfwExtensions;
@@ -68,6 +75,34 @@ void VulkanApplication::createInstance()
 	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create vulkan instance!");
 	}
+}
+
+bool VulkanApplication::checkGLFWExtensionSupport(const char** glfwExtensions, uint32_t glfwExtensionCount)
+{
+	uint32_t extensionCount;
+	// First get the amount of supported extensions
+	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+	std::vector<VkExtensionProperties> extensions(extensionCount); // Dynamically allocate size based on count of extensions
+	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data()); // Fill the vector with details about the extensions
+
+	// Store into a unique hash set
+	// Use std::string so that we can do a value comparison instead of address comparison
+	std::unordered_set<std::string> extensionSet;
+	for (const VkExtensionProperties& extension : extensions)
+	{
+		extensionSet.insert(extension.extensionName);
+	}
+
+	// Loop through all glfw extenions and check if supported
+	for (int i = 0; i < glfwExtensionCount; ++i)
+	{
+		std::string glfwExtension(glfwExtensions[i]);
+		if (extensionSet.find(glfwExtension) == extensionSet.end()) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void VulkanApplication::mainLoop()
