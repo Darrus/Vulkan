@@ -12,12 +12,21 @@ public:
 	void run();
 
 private:
+	// GLFW 
 	const uint32_t WIDTH = 800;
 	const uint32_t HEIGHT = 600;
 	GLFWwindow* window;
 
 	void initWindow();
+
+	// Vulkan
+	VkInstance instance;
+
 	void initVulkan();
+	void createInstance();
+
+
 	void mainLoop();
 	void cleanup();
+
 };
