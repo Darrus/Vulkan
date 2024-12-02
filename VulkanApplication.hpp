@@ -13,23 +13,50 @@ public:
 	void run();
 
 private:
+	void mainLoop();
+	void cleanup();
+
 	/** GLFW **/
 	const uint32_t WIDTH = 800;
 	const uint32_t HEIGHT = 600;
 	GLFWwindow* window;
 
-	void initWindow();
-	void cleanupWindow();
+	void initGLFW();
+	void cleanupGLFW();
 
 	/** VULKAN **/ 
+	const std::vector<const char*> validationLayers = {
+		"VK_LAYER_KHRONOS_validation" // All useful standard validation bundled into this layer
+	};
 	VkInstance instance;
+	VkDebugUtilsMessengerEXT debugMessenger;
+
+#ifndef NDEBUG // C++ Standard Macro, stands for "not debug"
+	const bool enableValidationLayers = false;
+#else
+	const bool enableValidationLayers = true;
+#endif
 
 	void initVulkan();
 	void cleanupVulkan();
 	void createInstance();
+	std::vector<const char*> getRequiredExtensions();
 	bool checkGLFWExtensionSupport(const char** glfwExtensions, uint32_t glfwExtensionCount);
+	bool checkValidationLayerSupport();
 
-	void mainLoop();
-	void cleanup();
+	void setupDebugMessenger();
+	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	VkResult createDebugUtilsMessengerEXT(
+		VkInstance instance,
+		const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+		const VkAllocationCallbacks* pAllocator,
+		VkDebugUtilsMessengerEXT* pDebugMessenger);
+	void destroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
+	// VKAPI_ATTR and VKAPI_CALL are used to call platform specific macros
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, 
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserData);
 };
