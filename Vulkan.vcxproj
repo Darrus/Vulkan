@@ -139,6 +139,9 @@
     <ClCompile Include="VulkanApplication.cpp" />
     <ClCompile Include="VulkanApplication.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="QueueFamilyIndices.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

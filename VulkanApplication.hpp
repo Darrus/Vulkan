@@ -2,10 +2,11 @@
 
 
 #include <vector>
-#include <cstdlib>
+#include <cstdint>
 
 #define GLFW_INCLUDE_VULKAN // Informs glfw to automatically include vulkan headers
 #include <GLFW/glfw3.h>
+#include "QueueFamilyIndices.hpp"
 
 class VulkanApplication
 {
@@ -30,6 +31,7 @@ private:
 	};
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
 #ifndef NDEBUG // C++ Standard Macro, stands for "not debug"
 	const bool enableValidationLayers = false;
@@ -59,4 +61,8 @@ private:
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
+
+	void pickPhysicalDevice();
+	int rateDeviceSuitability(VkPhysicalDevice device);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 };
