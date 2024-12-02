@@ -32,6 +32,8 @@ private:
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+	VkDevice device; // Logical device, interfaces to physical device
+	VkQueue graphicsQueue;
 
 #ifndef NDEBUG // C++ Standard Macro, stands for "not debug"
 	const bool enableValidationLayers = false;
@@ -42,10 +44,13 @@ private:
 	void initVulkan();
 	void cleanupVulkan();
 	void createInstance();
+
+	/* EXTENSIONS */
 	std::vector<const char*> getRequiredExtensions();
 	bool checkGLFWExtensionSupport(const char** glfwExtensions, uint32_t glfwExtensionCount);
 	bool checkValidationLayerSupport();
 
+	/* DEBUG MESSENGER */
 	void setupDebugMessenger();
 	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	VkResult createDebugUtilsMessengerEXT(
@@ -62,7 +67,11 @@ private:
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
 
+	/* PHYSICAL DEVICE */
 	void pickPhysicalDevice();
 	int rateDeviceSuitability(VkPhysicalDevice device);
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+	/* LOGICAL DEVICE */
+	void createLogicalDevice();
 };
