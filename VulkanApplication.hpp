@@ -34,6 +34,8 @@ private:
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkDevice device; // Logical device, interfaces to physical device
 	VkQueue graphicsQueue;
+	VkSurfaceKHR surface;
+	VkQueue presentQueue;
 
 #ifndef NDEBUG // C++ Standard Macro, stands for "not debug"
 	const bool enableValidationLayers = false;
@@ -67,6 +69,9 @@ private:
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
 
+	/* SURFACE */
+	void createSurface();
+
 	/* PHYSICAL DEVICE */
 	void pickPhysicalDevice();
 	int rateDeviceSuitability(VkPhysicalDevice device);
@@ -74,4 +79,5 @@ private:
 
 	/* LOGICAL DEVICE */
 	void createLogicalDevice();
+
 };
