@@ -29,5 +29,8 @@
     <ClInclude Include="QueueFamilyIndices.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SwapChainSupportDetails.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
