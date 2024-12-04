@@ -44,6 +44,7 @@ private:
 	std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
+	std::vector<VkImageView> swapChainImageViews;
 
 #ifndef NDEBUG // C++ Standard Macro, stands for "not debug"
 	const bool enableValidationLayers = false;
@@ -78,6 +79,7 @@ private:
 		void *pUserData);
 
 	/* SURFACE */
+	// Surface acts as an interface to the current system's window
 	void createSurface();
 
 	/* PHYSICAL DEVICE */
@@ -95,4 +97,9 @@ private:
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availableModes);
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+	/* IMAGE VIEW */
+	// An Image View acts like a lense to an Image without directly modifying the image
+	// Say you want a specific grid of an image collage, it can be specified in an image view on how to access
+	void createImageViews();
 };
