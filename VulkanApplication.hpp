@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 #define GLFW_INCLUDE_VULKAN // Informs glfw to automatically include vulkan headers
 #include <GLFW/glfw3.h>
@@ -102,4 +103,10 @@ private:
 	// An Image View acts like a lense to an Image without directly modifying the image
 	// Say you want a specific grid of an image collage, it can be specified in an image view on how to access
 	void createImageViews();
+
+	/* GRAPHICS PIPELINE */
+	void createGraphicsPipeline();
+	VkShaderModule createShaderModule(const std::vector<char>& code);
+
+	static std::vector<char> readFile(const std::string& filename);
 };

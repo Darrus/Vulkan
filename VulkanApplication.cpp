@@ -1,7 +1,7 @@
 #include "VulkanApplication.hpp"
 
+#include <fstream>
 #include <iostream>
-#include <string>
 #include <stdexcept>
 #include <map>
 #include <set>
@@ -652,4 +652,69 @@ void VulkanApplication::createImageViews()
 			throw std::runtime_error("failed to create image views!");
 		}
 	}
+}
+
+void VulkanApplication::createGraphicsPipeline()
+{
+	auto vertShaderCode = readFile("shaders/vert.spv");
+	auto fragShaderCode = readFile("shaders/frag.spv");
+
+	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+
+	// Create Vertex Shader Stage pipeline
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vertShaderStageInfo.module = vertShaderModule;
+	vertShaderStageInfo.pName = "main";
+
+	// Create Fragment Shader Stage pipeline
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragShaderStageInfo.module = fragShaderModule;
+	fragShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+	vkDestroyShaderModule(device, fragShaderModule, nullptr);
+	vkDestroyShaderModule(device, vertShaderModule, nullptr);
+}
+
+VkShaderModule VulkanApplication::createShaderModule(const std::vector<char>& code)
+{
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+	VkShaderModule shaderModule;
+
+	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create shader module!");
+	}
+
+	return shaderModule;
+}
+
+std::vector<char> VulkanApplication::readFile(const std::string& filename)
+{
+	// std;:ios::ate, start reading at the end of the file
+	// std::ios::binary, read the file as binary
+	std::ifstream file(filename, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open()) {
+		throw std::runtime_error("failed to open file!");
+	}
+
+	size_t fileSize = (size_t)file.tellg();
+	std::vector<char> buffer(fileSize);
+
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+
+	file.close();
+	
+	return buffer;
 }
