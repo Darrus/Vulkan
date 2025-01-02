@@ -678,6 +678,106 @@ void VulkanApplication::createGraphicsPipeline()
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+	// Indicate what variables are changeable
+	VkPipelineDynamicStateCreateInfo dynamicState{};
+	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	dynamicState.pDynamicStates = dynamicStates.data();
+
+	/* VERTEX INPUT */
+	/* Describe the format of the vertex data that will be passed to the vertex shader
+	* Bindings, spacing between data and whether the data is per-vertex or per-instance
+	* Attribute Descriptions, type of the attributes passed to the vertex shader, which binding to load them from and at which offset
+	*/
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputInfo.vertexBindingDescriptionCount = 0;
+	vertexInputInfo.pVertexBindingDescriptions = nullptr;
+	vertexInputInfo.vertexAttributeDescriptionCount = 0;
+	vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+
+	/* INPUT ASSEMBLY */
+	/* Describes what kind of geometry will be drawn from the vertices and if primitive restart should be enabled
+	* 
+	* Topology:
+	* - VK_PRIMITIVE_TOPOLOGY_POINT_LIST, points from vertices
+	* - VK_PRIMITIVE_TOPOLOGY_LINE_LIST, line from every 2 vertices without reuse
+	* - VK_PRIMITIVE_TOPOLOGY_LINE_STRIP, the end vertex of everyline is used as start vertex for the next line
+	* - VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, triangle from every 3 vertices without reuse
+	* - VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, the second and third vertex of every triangle are used as first two vertices of the next triangle
+	*/
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+	/* VIEWPORT */
+	// Describes the region of the framebuffer that the output will be rendered to
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)swapChainExtent.width;
+	viewport.height = (float)swapChainExtent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	// A Scissor rectangle define in which regions pixels will actually be stored
+	// Any pixels outside will be discarded by the rasterizer
+	// They function like a filter rather than a transformation
+	VkRect2D scissor{};
+	scissor.offset = { 0,0 };
+	scissor.extent = swapChainExtent;
+
+	VkPipelineViewportStateCreateInfo viewportState{};
+	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportState.viewportCount = 1;
+	viewportState.pViewports = &viewport;
+	viewportState.scissorCount = 1;
+	viewportState.pScissors = &scissor;
+
+	/* RASTERIZER */
+	VkPipelineRasterizationStateCreateInfo rasterizer{};
+	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizer.depthClampEnable = VK_FALSE; // if enabled, fragments beyond the near and far planes are clamped to them as opposed to discarding them
+	rasterizer.rasterizerDiscardEnable = VK_FALSE; //if enabled, geometry never passes through the rasterizer stage. This basically disables any output to the framebuffer.
+	
+	/* polygonMode determines how fragments are generated for geometry
+	* VK_POLYGON_MODE_FILL, fill the area of the polygon with fragments
+	* VK_POLYGON_MODE_LINE, polygon edges are drawn as lines
+	* VK_POLYGON_MODE_POINT, polygon vertices are drawn as points
+	*/
+	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterizer.lineWidth = 1.0f; // describes the thickness of lines in terms of number of fragments
+	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT; // Determines the type of face culling to use
+	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE; // Specifics the vertex order for faces to be considered front-facing
+	
+	// Allows rasterizer to alter the depth values by adding a constant value or biasing them based on a fragment's slope
+	rasterizer.depthBiasEnable = VK_FALSE;
+	rasterizer.depthBiasConstantFactor = 0.0f;
+	rasterizer.depthBiasClamp = 0.0f;
+	rasterizer.depthBiasSlopeFactor = 0.0f;
+
+	/* MULTISAMPLING */
+	VkPipelineMultisampleStateCreateInfo multisampling{};
+	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	multisampling.minSampleShading = 1.0f;
+	multisampling.pSampleMask = nullptr;
+	multisampling.alphaToCoverageEnable = VK_FALSE;
+	multisampling.alphaToOneEnable = VK_FALSE;
+
+	/* COLOR BLENDING */
+	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+	colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+	colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
 	vkDestroyShaderModule(device, fragShaderModule, nullptr);
 	vkDestroyShaderModule(device, vertShaderModule, nullptr);
 }

@@ -47,6 +47,12 @@ private:
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
 
+	// Determines what variables are changeable during drawing time
+	std::vector<VkDynamicState> dynamicStates = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR
+	};
+
 #ifndef NDEBUG // C++ Standard Macro, stands for "not debug"
 	const bool enableValidationLayers = false;
 #else
